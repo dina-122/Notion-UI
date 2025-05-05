@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Condition Selector</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+    }
+    select {
+      width: 200px;
+      padding: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Condition Configuration</h2>
+
+  <!-- Evaluate As -->
+  <label for="evaluateAs">Evaluate as:</label>
+  <select id="evaluateAs" onchange="handleEvaluateChange()">
+    <option value="">-- Select --</option>
+    <option value="erp">ERP Condition</option>
+    <option value="api">API Condition</option>
+  </select>
+
+  <!-- Named Entity (for ERP) -->
+  <div id="erpFields" style="display: none;">
+    <label for="namedEntity">Named Entity:</label>
+    <select id="namedEntity">
+      <option>DINA</option>
+      <option>CAREN</option>
+      <option>ALPHA</option>
+    </select>
+  </div>
+
+  <!-- API Name and Endpoint (independent) -->
+  <div id="apiFields" style="display: none;">
+    <label for="apiName">API Name:</label>
+    <select id="apiName">
+      <option>api1</option>
+      <option>api2</option>
+      <option>api3</option>
+    </select>
+
+    <label for="apiEndpoint">API Endpoint:</label>
+    <select id="apiEndpoint">
+      <option>api/api1</option>
+      <option>api/api2</option>
+      <option>api/api3</option>
+    </select>
+  </div>
+
+  <script>
+    function handleEvaluateChange() {
+      const value = document.getElementById('evaluateAs').value;
+      document.getElementById('erpFields').style.display = value === 'erp' ? 'block' : 'none';
+      document.getElementById('apiFields').style.display = value === 'api' ? 'block' : 'none';
+    }
+  </script>
+
+</body>
+</html>

@@ -1,69 +1,430 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Condition Selector</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
-    label {
-      display: block;
-      margin-top: 15px;
-    }
-    select {
-      width: 200px;
-      padding: 5px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API/ERP Condition Interface</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --light-bg: #f5f7fa;
+            --border-color: #dfe4ea;
+            --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-bg);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--secondary-color);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+        
+        select, input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        select {
+            background-color: white;
+        }
+        
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+        
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn i {
+            margin-right: 8px;
+        }
+        
+        .add-btn {
+            margin-top: 10px;
+        }
+        
+        .parameter-group, .condition-group, .effect-group {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .parameter-group h3, .condition-group h3 {
+            margin-bottom: 15px;
+            font-size: 18px;
+            color: var(--secondary-color);
+        }
+        
+        .parameter-item, .condition-item {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed var(--border-color);
+        }
+        
+        .parameter-item:last-child, .condition-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        
+        .section-title {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .condition-expression {
+            margin-top: 15px;
+        }
+        
+        .effect-type-container {
+            margin-top: 10px;
+        }
+        
+        #apiSection {
+            display: none;
+        }
+        
+        .remove-btn {
+            background-color: #e74c3c;
+            margin-left: 5px;
+        }
+        
+        .remove-btn:hover {
+            background-color: #c0392b;
+        }
+        
+        .flex-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .flex-grow {
+            flex-grow: 1;
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <h1>API/ERP Condition Interface</h1>
+        
+        <div class="form-group">
+            <label for="conditionType">Select Condition Type:</label>
+            <select id="conditionType" onchange="toggleSection()">
+                <option value="erp">ERP Condition</option>
+                <option value="api">API Condition</option>
+            </select>
+        </div>
+        
+        <!-- ERP Section (default) -->
+        <div id="erpSection">
+            <div class="section-title">ERP Condition Settings</div>
+            <div class="form-group">
+                <label for="erpCondition">ERP Condition:</label>
+                <textarea id="erpCondition" rows="5" placeholder="Enter ERP condition details..."></textarea>
+            </div>
+        </div>
+        
+        <!-- API Section (initially hidden) -->
+        <div id="apiSection">
+            <div class="section-title">API Configuration</div>
+            
+            <!-- API Selection -->
+            <div class="form-group">
+                <label for="apiSelect">Select API:</label>
+                <select id="apiSelect">
+                    <option value="">-- Select an API --</option>
+                    <option value="recruitment">Recruitment API</option>
+                    <option value="sales">Sales API</option>
+                    <option value="clients">Clients API</option>
+                    <option value="inventory">Inventory API</option>
+                    <option value="shipping">Shipping API</option>
+                </select>
+            </div>
+            
+            <!-- Query Parameters Section -->
+            <div class="parameter-group">
+                <h3>Query Parameters</h3>
+                <div id="queryParameters"></div>
+                <button class="btn add-btn" onclick="addQueryParameter()">
+                    <span>+ Add Query Parameter</span>
+                </button>
+            </div>
+            
+            <!-- Body Parameters Section -->
+            <div class="parameter-group">
+                <h3>Body Parameters</h3>
+                <div id="bodyParameters"></div>
+                <button class="btn add-btn" onclick="addBodyParameter()">
+                    <span>+ Add Body Parameter</span>
+                </button>
+            </div>
+            
+            <!-- Expected Outputs Section -->
+            <div class="parameter-group">
+                <h3>Expected Outputs</h3>
+                <div id="expectedOutputs"></div>
+                <button class="btn add-btn" onclick="addExpectedOutput()">
+                    <span>+ Add Expected Output</span>
+                </button>
+            </div>
+            
+            <!-- Conditions Section -->
+            <div class="parameter-group">
+                <h3>Conditions</h3>
+                <div id="conditions"></div>
+                <button class="btn add-btn" onclick="addCondition()">
+                    <span>+ Add Condition</span>
+                </button>
+            </div>
+        </div>
+    </div>
 
-  <h2>Condition Configuration</h2>
-
-  <!-- Evaluate As -->
-  <label for="evaluateAs">Evaluate as:</label>
-  <select id="evaluateAs" onchange="handleEvaluateChange()">
-    <option value="">-- Select --</option>
-    <option value="erp">ERP Condition</option>
-    <option value="api">API Condition</option>
-  </select>
-
-  <!-- Named Entity (for ERP) -->
-  <div id="erpFields" style="display: none;">
-    <label for="namedEntity">Named Entity:</label>
-    <select id="namedEntity">
-      <option>DINA</option>
-      <option>CAREN</option>
-      <option>ALPHA</option>
-    </select>
-  </div>
-
-  <!-- API Name and Endpoint (independent) -->
-  <div id="apiFields" style="display: none;">
-    <label for="apiName">API Name:</label>
-    <select id="apiName">
-      <option>api1</option>
-      <option>api2</option>
-      <option>api3</option>
-    </select>
-
-    <label for="apiEndpoint">API Endpoint:</label>
-    <select id="apiEndpoint">
-      <option>api/api1</option>
-      <option>api/api2</option>
-      <option>api/api3</option>
-    </select>
-  </div>
-
-  <script>
-    function handleEvaluateChange() {
-      const value = document.getElementById('evaluateAs').value;
-      document.getElementById('erpFields').style.display = value === 'erp' ? 'block' : 'none';
-      document.getElementById('apiFields').style.display = value === 'api' ? 'block' : 'none';
-    }
-  </script>
-
+    <script>
+        // Toggle between ERP and API sections
+        function toggleSection() {
+            const conditionType = document.getElementById('conditionType').value;
+            
+            if (conditionType === 'erp') {
+                document.getElementById('erpSection').style.display = 'block';
+                document.getElementById('apiSection').style.display = 'none';
+            } else {
+                document.getElementById('erpSection').style.display = 'none';
+                document.getElementById('apiSection').style.display = 'block';
+            }
+        }
+        
+        // Mock data for query parameters, output options, etc.
+        const QUERY_PARAMETERS = [
+            'query_id', 'page', 'limit', 'sort_by', 'filter', 'search', 
+            'status', 'category', 'date_from', 'date_to', 'include_deleted'
+        ];
+        
+        const BODY_PARAMETERS = [
+            'name', 'email', 'phone', 'address', 'notes', 'status',
+            'priority', 'category', 'tags', 'assigned_to', 'due_date'
+        ];
+        
+        const OUTPUT_OPTIONS = [
+            'output_1', 'output_2', 'output_3', 'output_4', 
+            'output_5', 'status_code', 'error_message', 'total_count'
+        ];
+        
+        // Add a new query parameter
+        function addQueryParameter() {
+            const container = document.getElementById('queryParameters');
+            const paramId = container.children.length + 1;
+            
+            const paramItem = document.createElement('div');
+            paramItem.className = 'parameter-item';
+            paramItem.innerHTML = `
+                <div class="flex-row">
+                    <div class="flex-grow">
+                        <label for="queryParam${paramId}">Query Parameter ${paramId}:</label>
+                        <select id="queryParam${paramId}" class="query-param">
+                            <option value="">-- Select Parameter --</option>
+                            ${QUERY_PARAMETERS.map(param => `<option value="${param}">${param}</option>`).join('')}
+                        </select>
+                    </div>
+                    <button class="btn remove-btn" onclick="removeElement(this.parentNode.parentNode)">Remove</button>
+                </div>
+            `;
+            
+            container.appendChild(paramItem);
+        }
+        
+        // Add a new body parameter
+        function addBodyParameter() {
+            const container = document.getElementById('bodyParameters');
+            const paramId = container.children.length + 1;
+            
+            const paramItem = document.createElement('div');
+            paramItem.className = 'parameter-item';
+            paramItem.innerHTML = `
+                <div class="flex-row">
+                    <div class="flex-grow">
+                        <label for="bodyParam${paramId}">Body Parameter ${paramId}:</label>
+                        <select id="bodyParam${paramId}" class="body-param">
+                            <option value="">-- Select Parameter --</option>
+                            ${BODY_PARAMETERS.map(param => `<option value="${param}">${param}</option>`).join('')}
+                        </select>
+                    </div>
+                    <button class="btn remove-btn" onclick="removeElement(this.parentNode.parentNode)">Remove</button>
+                </div>
+            `;
+            
+            container.appendChild(paramItem);
+        }
+        
+        // Add a new expected output
+        function addExpectedOutput() {
+            const container = document.getElementById('expectedOutputs');
+            const outputId = container.children.length + 1;
+            
+            const outputItem = document.createElement('div');
+            outputItem.className = 'parameter-item';
+            outputItem.innerHTML = `
+                <div class="flex-row">
+                    <div class="flex-grow">
+                        <label for="outputParam${outputId}">Expected Output ${outputId}:</label>
+                        <select id="outputParam${outputId}" class="output-param">
+                            <option value="">-- Select Output --</option>
+                            ${OUTPUT_OPTIONS.map(output => `<option value="${output}">${output}</option>`).join('')}
+                        </select>
+                    </div>
+                    <button class="btn remove-btn" onclick="removeElement(this.parentNode.parentNode)">Remove</button>
+                </div>
+            `;
+            
+            container.appendChild(outputItem);
+        }
+        
+        // Add a new condition
+        function addCondition() {
+            const container = document.getElementById('conditions');
+            const conditionId = container.children.length + 1;
+            
+            // Get all output parameters that have been added
+            const outputParams = document.querySelectorAll('.output-param');
+            let outputOptions = '';
+            
+            outputParams.forEach(param => {
+                if (param.value) {
+                    outputOptions += `<option value="${param.value}">${param.value}</option>`;
+                }
+            });
+            
+            if (!outputOptions) {
+                outputOptions = '<option value="">No outputs defined</option>';
+            }
+            
+            const conditionItem = document.createElement('div');
+            conditionItem.className = 'condition-item';
+            conditionItem.innerHTML = `
+                <div class="condition-expression">
+                    <label for="conditionExpr${conditionId}">Condition ${conditionId}:</label>
+                    <div class="flex-row">
+                        <div class="flex-grow">
+                            <select id="conditionOutput${conditionId}" class="condition-output">
+                                <option value="">-- Select Output --</option>
+                                ${outputOptions}
+                            </select>
+                        </div>
+                        <select id="conditionOperator${conditionId}" class="condition-operator">
+                            <option value="equals">=</option>
+                            <option value="not_equals">!=</option>
+                            <option value="greater_than">></option>
+                            <option value="less_than"><</option>
+                            <option value="contains">contains</option>
+                            <option value="not_contains">not contains</option>
+                        </select>
+                        <div class="flex-grow">
+                            <input type="text" id="conditionValue${conditionId}" placeholder="Value" class="condition-value">
+                        </div>
+                        <button class="btn remove-btn" onclick="removeElement(this.parentNode.parentNode.parentNode)">Remove</button>
+                    </div>
+                </div>
+                
+                <div class="effect-group">
+                    <label>Effect:</label>
+                    <select id="effectType${conditionId}" class="effect-type" onchange="toggleEffectType(${conditionId})">
+                        <option value="static">Static</option>
+                        <option value="api_call">API Call</option>
+                    </select>
+                    
+                    <div id="staticEffect${conditionId}" class="effect-type-container">
+                        <label for="staticValue${conditionId}">Static Value:</label>
+                        <input type="text" id="staticValue${conditionId}" placeholder="Enter static value...">
+                    </div>
+                    
+                    <div id="apiEffect${conditionId}" class="effect-type-container" style="display: none;">
+                        <label for="apiCall${conditionId}">API Call:</label>
+                        <input type="text" id="apiCall${conditionId}" placeholder="Enter API endpoint...">
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(conditionItem);
+        }
+        
+        // Toggle between static and API call effect types
+        function toggleEffectType(conditionId) {
+            const effectType = document.getElementById(`effectType${conditionId}`).value;
+            
+            if (effectType === 'static') {
+                document.getElementById(`staticEffect${conditionId}`).style.display = 'block';
+                document.getElementById(`apiEffect${conditionId}`).style.display = 'none';
+            } else {
+                document.getElementById(`staticEffect${conditionId}`).style.display = 'none';
+                document.getElementById(`apiEffect${conditionId}`).style.display = 'block';
+            }
+        }
+        
+        // Remove an element from the DOM
+        function removeElement(element) {
+            element.parentNode.removeChild(element);
+        }
+        
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleSection();
+        });
+    </script>
 </body>
 </html>
+
+
+
